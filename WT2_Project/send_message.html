@@ -1,0 +1,38 @@
+<html>
+<head>
+<script>
+function send_message()
+  {
+    var message = document.getElementById("content").value;
+    var active_user = document.getElementById("username").value;
+    console.log("In send message");
+    if (window.XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+    } else {
+            // code for IE6, IE5
+          xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    console.log(xmlhttp.status);
+    xmlhttp.onreadystatechange = function() {
+          console.log(xmlhttp.status);
+          if (this.readyState == 4 && this.status == 200) {
+            //document.getElementById("list_of_messages").innerHTML = this.responseText;
+            console.log(this.responseText);
+            display_messages();
+          }
+    };
+    xmlhttp.open("POST","http://localhost:5000/api/v1/messages",true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/json');
+    xmlhttp.send(JSON.stringify({"user1_name": "Sanjay Chari","user2_name": active_user,"content": message}));
+  }
+</script>
+</head>
+<body>
+<form>
+Enter Username : <input type="text" id="username"></input>
+Enter Message : <input type="text" id="content"></input>
+<button onclick="send_message();" type="button">Send</button>
+</form>
+</body>
+</html>

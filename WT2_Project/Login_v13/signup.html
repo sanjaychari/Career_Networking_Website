@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Login V13</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->	
+	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="fonts/iconic/css/material-design-iconic-font.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+<!--===============================================================================================-->	
+	<link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="css/util.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+<!--===============================================================================================-->
+	<script>
+	/**
+* Secure Hash Algorithm (SHA1)
+* http://www.webtoolkit.info/
+**/
+function SHA1(msg) {
+ function rotate_left(n,s) {
+ var t4 = ( n<<s ) | (n>>>(32-s));
+ return t4;
+ };
+ function lsb_hex(val) {
+ var str='';
+ var i;
+ var vh;
+ var vl;
+ for( i=0; i<=6; i+=2 ) {
+ vh = (val>>>(i*4+4))&0x0f;
+ vl = (val>>>(i*4))&0x0f;
+ str += vh.toString(16) + vl.toString(16);
+ }
+ return str;
+ };
+ function cvt_hex(val) {
+ var str='';
+ var i;
+ var v;
+ for( i=7; i>=0; i-- ) {
+ v = (val>>>(i*4))&0x0f;
+ str += v.toString(16);
+ }
+ return str;
+ };
+ function Utf8Encode(string) {
+ string = string.replace(/\r\n/g,'\n');
+ var utftext = '';
+ for (var n = 0; n < string.length; n++) {
+ var c = string.charCodeAt(n);
+ if (c < 128) {
+ utftext += String.fromCharCode(c);
+ }
+ else if((c > 127) && (c < 2048)) {
+ utftext += String.fromCharCode((c >> 6) | 192);
+ utftext += String.fromCharCode((c & 63) | 128);
+ }
+ else {
+ utftext += String.fromCharCode((c >> 12) | 224);
+ utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+ utftext += String.fromCharCode((c & 63) | 128);
+ }
+ }
+ return utftext;
+ };
+ var blockstart;
+ var i, j;
+ var W = new Array(80);
+ var H0 = 0x67452301;
+ var H1 = 0xEFCDAB89;
+ var H2 = 0x98BADCFE;
+ var H3 = 0x10325476;
+ var H4 = 0xC3D2E1F0;
+ var A, B, C, D, E;
+ var temp;
+ msg = Utf8Encode(msg);
+ var msg_len = msg.length;
+ var word_array = new Array();
+ for( i=0; i<msg_len-3; i+=4 ) {
+ j = msg.charCodeAt(i)<<24 | msg.charCodeAt(i+1)<<16 |
+ msg.charCodeAt(i+2)<<8 | msg.charCodeAt(i+3);
+ word_array.push( j );
+ }
+ switch( msg_len % 4 ) {
+ case 0:
+ i = 0x080000000;
+ break;
+ case 1:
+ i = msg.charCodeAt(msg_len-1)<<24 | 0x0800000;
+ break;
+ case 2:
+ i = msg.charCodeAt(msg_len-2)<<24 | msg.charCodeAt(msg_len-1)<<16 | 0x08000;
+ break;
+ case 3:
+ i = msg.charCodeAt(msg_len-3)<<24 | msg.charCodeAt(msg_len-2)<<16 | msg.charCodeAt(msg_len-1)<<8 | 0x80;
+ break;
+ }
+ word_array.push( i );
+ while( (word_array.length % 16) != 14 ) word_array.push( 0 );
+ word_array.push( msg_len>>>29 );
+ word_array.push( (msg_len<<3)&0x0ffffffff );
+ for ( blockstart=0; blockstart<word_array.length; blockstart+=16 ) {
+ for( i=0; i<16; i++ ) W[i] = word_array[blockstart+i];
+ for( i=16; i<=79; i++ ) W[i] = rotate_left(W[i-3] ^ W[i-8] ^ W[i-14] ^ W[i-16], 1);
+ A = H0;
+ B = H1;
+ C = H2;
+ D = H3;
+ E = H4;
+ for( i= 0; i<=19; i++ ) {
+ temp = (rotate_left(A,5) + ((B&C) | (~B&D)) + E + W[i] + 0x5A827999) & 0x0ffffffff;
+ E = D;
+ D = C;
+ C = rotate_left(B,30);
+ B = A;
+ A = temp;
+ }
+ for( i=20; i<=39; i++ ) {
+ temp = (rotate_left(A,5) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1) & 0x0ffffffff;
+ E = D;
+ D = C;
+ C = rotate_left(B,30);
+ B = A;
+ A = temp;
+ }
+ for( i=40; i<=59; i++ ) {
+ temp = (rotate_left(A,5) + ((B&C) | (B&D) | (C&D)) + E + W[i] + 0x8F1BBCDC) & 0x0ffffffff;
+ E = D;
+ D = C;
+ C = rotate_left(B,30);
+ B = A;
+ A = temp;
+ }
+ for( i=60; i<=79; i++ ) {
+ temp = (rotate_left(A,5) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6) & 0x0ffffffff;
+ E = D;
+ D = C;
+ C = rotate_left(B,30);
+ B = A;
+ A = temp;
+ }
+ H0 = (H0 + A) & 0x0ffffffff;
+ H1 = (H1 + B) & 0x0ffffffff;
+ H2 = (H2 + C) & 0x0ffffffff;
+ H3 = (H3 + D) & 0x0ffffffff;
+ H4 = (H4 + E) & 0x0ffffffff;
+ }
+ var temp = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
+
+ return temp.toLowerCase();
+}
+
+    function SendData() {
+      console.log("In SendData");
+      var name = document.getElementById("name").value;
+      var email = document.getElementById("email").value;
+      var skills = document.getElementById("skills").value;
+      var company_name = document.getElementById("company_name").value;
+      var company_head = document.getElementById("company_headquarters").value;
+      var company_ceo = document.getElementById("ceo").value;
+      var category = document.getElementById("category").value;
+      var password = SHA1(document.getElementById("password").value);
+      var repeat_pass = SHA1(document.getElementById("repeat-pass").value);
+
+      //console.log(location);
+      if (window.XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+          var xmlhttp = new XMLHttpRequest();
+      } else {
+            // code for IE6, IE5
+            var xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      //console.log(this.readyState);
+      xmlhttp.onreadystatechange = function() {
+            console.log(xmlhttp.readyState);
+            console.log(this.responseJSON);
+            if (this.readyState == 4 && this.status == 200) {
+                if(this.responseText == "Password and repeat password do not match")
+                {
+                	alert(this.responseText);
+                }
+                else if(this.responseText == "Email already registered")
+                {
+                	alert(this.responseText);
+                	window.location.href = "login.html";
+                }
+                else if(this.responseText == "Profile Created Successfully")
+                {
+                	alert(this.responseText);
+                	document.cookie = "username="+name+";domain=localhost;path=/";
+                	window.location.href = "../index.html";
+                }
+            }
+      };
+      //xmlhttp.open("GET","signup.php?name="+name+"&email="+email+"&company_name="+company_name+"&company_headquarters="+company_head+"&ceo="+company_ceo+"&category="+category+"&password="+password+"&repeat_pass="+repeat_pass,true);
+      //xmlhttp.send();
+      xmlhttp.open('POST', 'http://localhost:5000/api/v1/users', true);
+      xmlhttp.setRequestHeader('Content-Type', 'application/json');
+      //xmlhttp.withCredentials = true;
+      //xmlhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+      xmlhttp.send(JSON.stringify({ "name": name, "email": email, "company_name": company_name, "skills": skills, "company_headquarters": company_head, "ceo": company_ceo,"category": category, "password": password,"repeat_pass": repeat_pass}));
+      //xmlhttp.send();
+    }
+    </script>   
+</head>
+<body style="background-color: #999999;">
+	
+	<div class="limiter">
+		<div class="container-login100">
+			<div class="login100-more" style="background-image: url('images/bg-01.jpg');"></div>
+
+			<div class="wrap-login100 p-l-50 p-r-50 p-t-72 p-b-50">
+				<form class="login100-form validate-form">
+					<span class="login100-form-title p-b-59">
+						Sign Up
+					</span>
+
+					<div class="wrap-input100 validate-input" data-validate="Name is required">
+						<span class="label-input100">Full Name</span>
+						<input class="input100" type="text" name="name" placeholder="Name..." id="name">
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
+						<span class="label-input100">Email</span>
+						<input class="input100" type="text" name="email" placeholder="Email addess..." id="email">
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate = "Skills is required">
+						<span class="label-input100">Skills</span>
+						<input class="input100" type="text" name="skills" placeholder="Enter comma separated values" id="skills">
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate="Company is required">
+						<span class="label-input100">Company Name</span>
+						<input class="input100" type="text" name="cname" placeholder="Company Name..." id="company_name">
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate="Company Headquarters is required">
+						<span class="label-input100">Company Headquarters</span>
+						<input class="input100" type="text" name="chead" placeholder="Company Headquarterse..." id="company_headquarters">
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate="CEO is required">
+						<span class="label-input100">Company CEO</span>
+						<input class="input100" type="text" name="ceo" placeholder="Company CEO..." id="ceo">
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate="Type is required">
+						<span class="label-input100">Type of Work</span>
+						<input class="input100" type="text" name="category" placeholder="Type of Work..." id="category">
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate = "Password is required">
+						<span class="label-input100">Password</span>
+						<input class="input100" type="password" name="pass" placeholder="*************" id="password">
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate = "Repeat Password is required">
+						<span class="label-input100">Repeat Password</span>
+						<input class="input100" type="password" name="repeat-pass" placeholder="*************" id="repeat-pass">
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="flex-m w-full p-b-33">
+						<div class="contact100-form-checkbox">
+							<input class="input-checkbox100" id="ckb1" type="checkbox" name="remember-me">
+							<label class="label-checkbox100" for="ckb1">
+								<span class="txt1">
+									I agree to the
+									<a href="#" class="txt2 hov1">
+										Terms of User
+									</a>
+								</span>
+							</label>
+						</div>
+
+						
+					</div>
+
+					<div class="container-login100-form-btn">
+						<div class="wrap-login100-form-btn">
+							<div class="login100-form-bgbtn"></div>
+							<button class="login100-form-btn" type="button" onclick="SendData()">
+								Sign Up
+							</button>
+						</div>
+
+						<a href="login.html" class="dis-block txt3 hov1 p-r-30 p-t-10 p-b-10 p-l-30">
+							Sign in
+							<i class="fa fa-long-arrow-right m-l-5"></i>
+						</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+<!--===============================================================================================-->
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/daterangepicker/moment.min.js"></script>
+	<script src="vendor/daterangepicker/daterangepicker.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/countdowntime/countdowntime.js"></script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+
+</body>
+</html>
