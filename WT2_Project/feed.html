@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Careers &mdash; Website Template by Colorlib</title>
+  <title>Feed</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="css/custom-bs.css">
@@ -13,6 +13,59 @@
   <link rel="stylesheet" href="css/owl.carousel.min.css">
   <link rel="stylesheet" href="css/animate.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+     function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+  var cookie_username = getCookie('username');
+
+    function fetchdata(){
+    $.ajax({
+    url: 'http://localhost:5000/api/v1/posts?fetchdata=true&username='+cookie_username,
+    type: 'get',
+    success: function(response){
+   // Perform operation on the return value
+    console.log(response);
+    document.getElementById("container").innerHTML=response;
+      }
+    });
+    }
+
+    function Periodic_Refresh_list(){
+    fetchdata();
+    //display_messages();
+    intervalid = setInterval(fetchdata,5000);
+    //intervalid2 = setInterval(display_messages,5000);
+    }
+
+    function logout()
+    {
+      console.log("In Logout");
+      document.cookie = "username="+cookie_username+";expires=Thu, 01 Jan 1970 00:00:01 GMT;domain=localhost;path=/";
+      window.location.href = "Login_v13/signup.html";
+    }
+
+    function redirect_to_add_post()
+    {
+      window.location.href = "Login_v13/addpost.html";
+    }
+
+    $(document).ready(Periodic_Refresh_list());
+  </script>
 </head>
 
 <body id="top">
@@ -34,26 +87,24 @@
     <header class="site-navbar mt-3">
       <div class="container-fluid">
         <div class="row align-items-center">
-          <div class="site-logo col-6"><a href="index.html">Careers</a></div>
+          <div class="site-logo col-6"><a href="index.html">SanAdiUl</a></div>
 
           <nav class="mx-auto site-navigation">
             <ul class="site-menu js-clone-nav d-none d-xl-block ml-0 pl-0">
-              <li><a href="index.html" class="nav-link">Home</a></li>
-              <li><a href="job-listings.html">Job Listings</a></li>
-              <li><a href="about.html">About</a></li>
-              <li><a href="services.html">Services</a></li>
-              <li><a href="blog.html" class="active">Blog</a></li>
-              <li class="d-lg-none"><a href="contact.html">Contact Us</a></li>
+              <li><a href="index.html">Job Listings</a></li>
+              <!--<li><a href="job-listings.html">Job Listings</a></li>-->
+              <li><a href="feed.html" class="nav-link active">Feed</a></li>
+              <li><a href="chat/messages.html">Messaging</a></li>
+              <li><a href="connections.html">Your Connections</a></li>
+              <li class="d-lg-none" onclick="logout()">Logout</li>
             </ul>
           </nav>
-
+          
           <div class="right-cta-menu text-right d-flex aligin-items-center col-6">
             <div class="ml-auto">
-              <a href="contact.html" class="btn btn-primary border-width-2 d-none d-lg-inline-block"><span
-                  class="mr-2 icon-paper-plane"></span>Contact Us</a>
+              <a href="#" class="btn btn-primary border-width-2 d-none d-lg-inline-block" onclick="logout()"><span class="mr-2 icon-paper-plane"></span>Logout</a>
             </div>
-            <a href="#" class="site-menu-toggle js-menu-toggle d-inline-block d-xl-none mt-lg-2 ml-3"><span
-                class="icon-menu h3 m-0 p-0 mt-2"></span></a>
+            <a href="#" class="site-menu-toggle js-menu-toggle d-inline-block d-xl-none mt-lg-2 ml-3"><span class="icon-menu h3 m-0 p-0 mt-2"></span></a>
           </div>
 
         </div>
@@ -67,8 +118,7 @@
         <div class="row align-items-center justify-content-center">
           <div class="col-md-12">
             <div class="mb-5 text-center">
-              <h1 class="text-white font-weight-bold">Our Blog</h1>
-              <p>Find your dream jobs in our powerful career website template.</p>
+              <h1 class="text-white font-weight-bold">Feed</h1>
             </div>
           </div>
         </div>
@@ -78,8 +128,8 @@
 
     <section class="site-section">
       <div class="container">
-        <div class="row mb-5">
-          <div class="col-md-6 col-lg-4 mb-5">
+        <div class="row mb-5" id="container">
+          <!--<div class="col-md-6 col-lg-4 mb-5">
             <a href="blog-single.html"><img src="images/sq_img_1.jpg" alt="Free Website Template by Free-Template.co"
                 class="img-fluid rounded mb-4"></a>
             <h3><a href="blog-single.html" class="text-black">7 Factors for Choosing Between Two Jobs</a></h3>
@@ -114,86 +164,13 @@
                 class="img-fluid rounded mb-4"></a>
             <h3><a href="blog-single.html" class="text-black">The Right Way to Quit a Job You Started</a></h3>
             <div>April 15, 2019 <span class="mx-2">|</span> <a href="#">2 Comments</a></div>
-          </div>
+          </div>-->
         </div>
-        <div class="row pagination-wrap mt-5">
-    
-          <div class="col-md-12 text-center ">
-            <div class="custom-pagination ml-auto">
-              <a href="#" class="prev">Previous</a>
-              <div class="d-inline-block">
-                <a href="#" class="active">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">4</a>
-              </div>
-              <a href="#" class="next">Next</a>
-            </div>
-          </div>
-        </div>
-    
-      </div>
     </section>
+  </div>
 
-    <footer class="site-footer">
-
-
-      <div class="container">
-        <div class="row mb-5">
-          <div class="col-6 col-md-3 mb-4 mb-md-0">
-            <h3>Search Trending</h3>
-            <ul class="list-unstyled">
-              <li><a href="#">Web Design</a></li>
-              <li><a href="#">Graphic Design</a></li>
-              <li><a href="#">Web Developers</a></li>
-              <li><a href="#">Python</a></li>
-              <li><a href="#">HTML5</a></li>
-              <li><a href="#">CSS3</a></li>
-            </ul>
-          </div>
-          <div class="col-6 col-md-3 mb-4 mb-md-0">
-            <h3>Company</h3>
-            <ul class="list-unstyled">
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Career</a></li>
-              <li><a href="#">Blog</a></li>
-              <li><a href="#">Resources</a></li>
-            </ul>
-          </div>
-          <div class="col-6 col-md-3 mb-4 mb-md-0">
-            <h3>Support</h3>
-            <ul class="list-unstyled">
-              <li><a href="#">Support</a></li>
-              <li><a href="#">Privacy</a></li>
-              <li><a href="#">Terms of Service</a></li>
-            </ul>
-          </div>
-          <div class="col-6 col-md-3 mb-4 mb-md-0">
-            <h3>Contact Us</h3>
-            <div class="footer-social">
-              <a href="#"><span class="icon-facebook"></span></a>
-              <a href="#"><span class="icon-twitter"></span></a>
-              <a href="#"><span class="icon-instagram"></span></a>
-              <a href="#"><span class="icon-linkedin"></span></a>
-            </div>
-          </div>
-        </div>
-
-        <div class="row text-center">
-          <div class="col-12">
-            <p>
-              <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-              Copyright &copy;
-              <script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made
-              with <i class="icon-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com"
-                target="_blank">Colorlib</a>
-              <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-            </p>
-          </div>
-        </div>
-      </div>
-    </footer>
-
+  <div style="text-align:center">
+  <button style="background-color:blue;color:white;" onclick="redirect_to_add_post()"><span class="icon-search icon mr-2"></span>Create Post</button>
   </div>
 
   <!-- SCRIPTS -->

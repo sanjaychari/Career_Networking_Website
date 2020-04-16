@@ -1049,5 +1049,147 @@ def list_messages():
 				except:
 					return "Bad Request",400
 
+#Post Comment
+@app.route('/api/v1/posts', methods=['POST'])
+@cross_origin(support_credentials = True)
+def add_post():
+	if(not(request.method=="POST")):
+		return jsonify({}),405
+	try:
+		req_data = request.get_json()
+		username = req_data['username']
+		content = req_data['content']
+		post_id = req_data['post_id']
+	except:
+		try:
+			req_data = request.get_json()
+			username = req_data['username']
+			query = "SELECT user_id FROM user WHERE name=\'"+username+"\';"
+			resp_data = {"query":query,"write":False}
+			response = requests.post("http://127.0.0.1:5000/api/v1/db/execute",json=resp_data)
+			user_id = json.loads(response.text)['user_id']
+			content = req_data['content']
+			resp_data = {'insert':[content,"DEFAULT",str(user_id),"",str(datetime.now())],'column':["content","post_id","user_id","comments","Date_Time"],'table':"post","update":"False"}
+			response = requests.post("http://127.0.0.1:5000/api/v1/db/write",json=resp_data)
+			return "Post Created",200
+		except:
+			return "Bad Request",400
+	#print(content)
+	resp_data = {"table":"post","columns":["comments"],"where":"post_id="+str(post_id),"delete":"False"}
+	response = requests.post("http://127.0.0.1:5000/api/v1/db/read",json=resp_data)
+	comments = str(json.loads(response.text)['comments'])
+	if(comments == ""):
+		comments += username+"$$$"+str(datetime.now())+"$$$"+content
+	else:
+		comments += "+++"+username+"$$$"+str(datetime.now())+"$$$"+content
+	query = "UPDATE post SET comments=\'"+comments+"\' WHERE post_id="+str(post_id)+";"
+	resp_data = {'query':query,'write':True}
+	response = requests.post("http://127.0.0.1:5000/api/v1/db/execute",json=resp_data)
+	return "Comment Posted Successfully",200
+
+@app.route('/api/v1/posts', methods=['GET'])
+@cross_origin()
+def list_posts():
+	try:
+		fetchdata = request.args['fetchdata']
+		username = request.args.get('username')
+		query = "CREATE VIEW temp AS (SELECT user1_name AS name FROM connection WHERE user2_name=\'"+username+"\' AND is_approved=1) UNION (SELECT user2_name AS name FROM connection WHERE user1_name=\'"+username+"\' AND is_approved=1);"
+		resp_data = {"query":query,"write":True}
+		response = requests.post("http://127.0.0.1:5000/api/v1/db/execute",json=resp_data)
+		query = "SELECT user_id, name FROM user WHERE name IN (SELECT * FROM temp);"
+		resp_data = {"query":query,"write":False}
+		response = requests.post("http://127.0.0.1:5000/api/v1/db/execute",json=resp_data)
+		if(response.text == "{}\n"):
+			return "No Data to be Displayed",200
+		acc_user_ids = json.loads(response.text)
+		dic_user_ids = {}
+		if(isinstance(acc_user_ids,list)):
+			li_user_ids = [row['user_id'] for row in acc_user_ids]
+			for row in acc_user_ids:
+				dic_user_ids[row['user_id']] = row['name']
+		else:
+			li_user_ids = [acc_user_ids['user_id']]
+			dic_user_ids[acc_user_ids['user_id']] = acc_user_ids['name']
+		query = "DROP VIEW temp;"
+		resp_data = {"query":query,"write":True}
+		response = requests.post("http://127.0.0.1:5000/api/v1/db/execute",json=resp_data)
+		query = "SELECT post_id,user_id,content,comments,Date_Time FROM post;"
+		resp_data = {"query":query,"write":False}
+		response = requests.post("http://127.0.0.1:5000/api/v1/db/execute",json=resp_data)
+		if(response.text == "{}\n"):
+			return "No Data to be Displayed",200
+		result = json.loads(response.text)
+		s = ""
+		if(isinstance(result,list)):
+			for row in result:
+				if(row['comments'] == ""):
+					num_com = str(0)
+				else:
+					num_com = str(len(list(map(str,row['comments'].split('+++')))))
+				if(row['user_id'] in li_user_ids):
+					if(len(row['content'])<50):
+						content = row['content']
+					else:
+						content = row['content'][:50]+"..."
+					s += """<div class=\"col-md-6 col-lg-4 mb-5\">
+			<a href=\"post-single.html?post_id="""+str(row['post_id'])+"""\">"""+str(dic_user_ids[row['user_id']])+"""</a>
+			<h3><a href=\"post-single.html?post_id="""+str(row['post_id'])+"""\" class=\"text-black\">"""+content+"""</a></h3>
+			<div>"""+str(row['Date_Time'])+""" <span class=\"mx-2\">|</span> <a href=\"post-single.html?post_id="""+str(row['post_id'])+"""\">"""+num_com+""" Comments</a></div>
+		  </div>"""
+		else:
+			row = result
+			if(row['comments'] == ""):
+				num_com = str(0)
+			else:
+				num_com = str(len(list(map(str,row['comments'].split('+++')))))
+			if(row['user_id'] in li_user_ids):
+				if(len(row['content'])<50):
+					content = row['content']
+				else:
+					content = row['content'][:50]+"..."
+				s += """<div class=\"col-md-6 col-lg-4 mb-5\">
+			<a href=\"post-single.html?post_id="""+str(row['post_id'])+"""\">"""+str(dic_user_ids[row['user_id']])+"""</a>
+			<h3><a href=\"post-single.html?post_id="""+str(row['post_id'])+"""\" class=\"text-black\">"""+content+"""</a></h3>
+			<div>"""+str(row['Date_Time'])+""" <span class=\"mx-2\">|</span> <a href=\"post-single.html?post_id="""+str(row['post_id'])+"""\">"""+num_com+""" Comments</a></div>
+		  </div>"""
+		return s,200
+	except:
+		try:
+			post_id = request.args['post_id']
+			query = "SELECT user_id,content,comments,Date_Time FROM post WHERE post_id="+post_id+";"
+			resp_data = {"query":query,"write":False}
+			response = requests.post("http://127.0.0.1:5000/api/v1/db/execute",json=resp_data)
+			result = json.loads(response.text)
+			query = "SELECT name FROM user WHERE user_id="+str(result['user_id'])+";"
+			resp_data = {"query":query,"write":False}
+			response = requests.post("http://127.0.0.1:5000/api/v1/db/execute",json=resp_data)
+			username = json.loads(response.text)['name']
+			s = """<h3>"""+username+"""</h3>"""+result['content']
+			row = result
+			if(row['comments'] == ""):
+				num_com = str(0)
+			else:
+				num_com = str(len(list(map(str,row['comments'].split('+++')))))
+			s += """<div class=\"pt-5\"><h3 class=\"mb-5\">"""+str(num_com)+""" Comments</h3>
+			  <ul class=\"comment-list\">"""
+			if(num_com!=str(0)):
+				li_comments = list(map(str,row['comments'].split('+++')))
+				for comment in li_comments:
+					row_comment = list(map(str,comment.split('$$$')))
+					s += """<li class=\"comment\">
+					  <div class=\"vcard bio\">
+						<img src=\"images/person_2.jpg\" alt=\"Image placeholder\">
+					  </div>
+					  <div class=\"comment-body\">
+						<h3>"""+row_comment[0]+"""</h3>
+						<div class=\"meta\">"""+row_comment[1]+"""</div>
+						<p>"""+row_comment[2]+"""</p>
+					  </div>
+					</li>"""
+			s += "</ul></div>"
+			return s,200
+		except:
+			return "Bad Request",400
+
 if __name__ == "__main__":
 	app.run(host = 'localhost', debug=True)
